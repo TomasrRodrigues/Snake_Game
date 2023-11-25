@@ -2,13 +2,14 @@ import javax.swing.JFrame;
 import java.awt.*;
 
 public class Window extends JFrame implements Runnable{
-    public boolean isRunning=true;
+    public static Window window =null;
+    public static boolean isRunning=true;
 
-    public static int currentState;
-    public static Scene currentScene;
+    public int currentState;
+    public Scene currentScene;
 
-    public static KeyList keyListener=new KeyList();
-    public static MouseList mouseListener= new MouseList();
+    public KeyList keyListener=new KeyList();
+    public MouseList mouseListener= new MouseList();
 
     public Window (int width, int height, String title){
         setSize(width, height);
@@ -16,31 +17,38 @@ public class Window extends JFrame implements Runnable{
         setResizable(false);
         setVisible(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        addKeyListener(Window.keyListener);
+        addKeyListener(keyListener);
         addMouseListener(mouseListener);
         addMouseMotionListener(mouseListener);
 
         isRunning=true;
-        Window.changeState(0);
+        changeState(0);
     }
 
+    public static Window getWindow(){
+        if (Window.window==null){
+            Window.window=new Window(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, Constants.SCREEN_TITLE);
+        }
 
-    public static void closeWindow(){
-
+        return Window.window;
     }
 
-    public static void changeState(int newState){
-        Window.currentState=newState;
-        switch(Window.currentState){
+    public void closeWindow(){
+        isRunning=false;
+    }
+
+    public void changeState(int newState){
+        currentState=newState;
+        switch(currentState){
             case 0:
-                Window.currentScene = new MenuScene(Window.keyListener, Window.mouseListener);
+                currentScene = new MenuScene(keyListener, mouseListener);
                 break;
             case 1:
-                Window.currentScene = new GameScene(Window.keyListener);
+                currentScene = new GameScene(keyListener);
                 break;
             default:
                 System.out.println("Unknown scene.");
-                Window.currentScene=null;
+                currentScene=null;
                 break;
         }
     }
@@ -72,5 +80,7 @@ public class Window extends JFrame implements Runnable{
         } catch(Exception e){
             e.printStackTrace();
         }
+
+        this.dispose();
     }
 }
